@@ -1,0 +1,3 @@
+interface:
+  display_name: "Trajectory Analysis"
+  short_description: "Analyze agent runs and trace failure causes with evidence"

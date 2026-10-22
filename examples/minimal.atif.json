@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0",
+  "session_id": "synthetic-timeout-example",
+  "agent": {
+    "name": "synthetic-example",
+    "model_name": "not-a-real-run"
+  },
+  "steps": [
+    {
+      "step_id": 1,
+      "source": "user",
+      "message": "Fix request timeouts caused by DEFAULT_TIMEOUT = 0 and verify the configuration."
+    },
+    {
+      "step_id": 2,
+      "source": "agent",
+      "message": "I will inspect the current timeout configuration.",
+      "tool_calls": [
+        {
+          "tool_call_id": "inspect",
+          "function_name": "Bash",
+          "arguments": {
+            "command": "sed -n '1,80p' src/client.py"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "inspect",
+            "content": "DEFAULT_TIMEOUT = 0\n"
+          }
+        ]
+      }
+    },
+    {
+      "step_id": 3,
+      "source": "agent",
+      "message": "I will restore the required timeout and run the related test.",
+      "tool_calls": [
+        {
+          "tool_call_id": "edit",
+          "function_name": "Edit",
+          "arguments": {
+            "file_path": "src/client.py",
+            "old_string": "DEFAULT_TIMEOUT = 0",
+            "new_string": "DEFAULT_TIMEOUT = 30"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "edit",
+            "content": "The file was updated successfully."
+          }
+        ]
+      }
+    },
+    {
+      "step_id": 4,
+      "source": "agent",
+      "tool_calls": [
+        {
+          "tool_call_id": "verify",
+          "function_name": "Bash",
+          "arguments": {
+            "command": "pytest -q tests/test_client.py"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "verify",
+            "content": "{\"exit_code\": 0, \"output\": \"1 passed in 0.01s\"}"
+          }
+        ]
+      }
+    },
+    {
+      "step_id": 5,
+      "source": "agent",
+      "message": "Updated the timeout to 30. The related test passed."
+    }
+  ]
+}
